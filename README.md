@@ -21,3 +21,10 @@ If you want to achieve similar results you can:
 ## Screenshots
 <img src="/Images/Image.jpg" alt="Homescreen">
 
+## Security
+* Due to a lack of extensive tests and documentation, this software may engage in unwanted behavior, including corrupting data.
+* This software does not currently allow to verify SSH fingerprints. This implies that the server you intend to connect to could be different
+from the server you are actually connecting to.
+* This software does not currently allow authentication through SSH keys.
+
+Hence, **use is not recommended in environments where data security and integrity is important.**
