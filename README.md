@@ -7,7 +7,7 @@ Works on any machine able to execute Java code, but is able to target only Linux
 - Navigation in the File System;
 - Common file operations (cut, copy, rename, delete, paste, create);
 - File and folder transfer (to/from);
-- Drop files and folders onto the view to transfer them:
+- Drop files and folders onto the view to transfer them;
 - Integrated file editor.
 
 ## Alternatives
