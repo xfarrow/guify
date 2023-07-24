@@ -3,7 +3,7 @@ Guify creates a Graphical User Interface for SSH.
 
 Works on any machine able to execute Java code, but is able to target only Linux (or more in general POSIX-compliant) systems.
 
-## Features:
+## Features
 - Navigation in the File System;
 - Common file operations (cut, copy, rename, delete, paste, create);
 - File and folder transfer (to/from);
@@ -22,7 +22,7 @@ If you want to achieve similar results you can:
 ## Screenshots
 <img src="/Images/Image.jpg" alt="Homescreen">
 
-## Security
+## Security notice
 * Due to a lack of extensive tests and documentation, this software may engage in unwanted behavior, including corrupting data;
 * This software does not currently allow to verify SSH fingerprints. This implies that the server you intend to connect to could be different
 from the server you are actually connecting to;
