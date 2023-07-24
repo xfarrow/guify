@@ -89,4 +89,8 @@ public class QueueController implements Observer{
 		frame.setVisible(visible);
 	}
 	
+	public boolean isTransferProgressInHashMap(TransferProgress transferProgress) {
+		return getTableIndex(transferProgress) != null;
+	}
+	
 }

@@ -92,7 +92,7 @@ public class Queue extends JFrame implements IQueueFrame {
 	public void manageTransferProgress(TransferProgress transferProgress) {
 		
 		if(transferProgress.getTransferStatus() == TransferProgress.INIT) {
-			if(controller.getTableIndex(transferProgress) == null) {
+			if(!controller.isTransferProgressInHashMap(transferProgress)) {
 				controller.putTableIndex(transferProgress, 
 								addRow(transferProgress.getSource(), 
 								transferProgress.getDestination(), 
@@ -102,8 +102,7 @@ public class Queue extends JFrame implements IQueueFrame {
 		}
 		
 		else if(transferProgress.getTransferStatus() == TransferProgress.UPDATING) {
-			Integer tableIndex = controller.getTableIndex(transferProgress);
-			if(tableIndex == null) {
+			if(!controller.isTransferProgressInHashMap(transferProgress)) {
 				controller.putTableIndex(transferProgress, 
 								addRow(transferProgress.getSource(), 
 								transferProgress.getDestination(), 
@@ -111,13 +110,12 @@ public class Queue extends JFrame implements IQueueFrame {
 								controller.computePercentage(transferProgress)));
 			}
 			else {
-				updateRow(tableIndex, controller.computePercentage(transferProgress));
+				updateRow(controller.getTableIndex(transferProgress), controller.computePercentage(transferProgress));
 			}
 		}
 		
 		else if(transferProgress.getTransferStatus() == TransferProgress.END) {
-			Integer tableIndex = controller.getTableIndex(transferProgress);
-			if(tableIndex == null) {
+			if(!controller.isTransferProgressInHashMap(transferProgress)) {
 				controller.putTableIndex(transferProgress, 
 								addRow(transferProgress.getSource(), 
 								transferProgress.getDestination(), 
@@ -125,7 +123,7 @@ public class Queue extends JFrame implements IQueueFrame {
 								100));
 			}
 			else {
-				updateRow(tableIndex, 100);
+				updateRow(controller.getTableIndex(transferProgress), 100);
 			}
 		}
 		
