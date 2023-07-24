@@ -18,8 +18,10 @@ public class QueueController implements Observer{
 	 */
 	
 	private IQueueFrame frame;
+	// Accessed only through the EDT, so no need to use ConcurrentHashMap
 	private HashMap<TransferProgress, Integer> indexHashMap = new HashMap<>();
-	
+	private long lastGuiExecutionTime = 0;
+	private static final long THROTTLE_TIME_MS = 10; // 10ms = 1/100th of second
 	/*
 	 * ========== END Attributes ==========
 	 */
@@ -47,16 +49,22 @@ public class QueueController implements Observer{
 		}
 	}
 	
-	// Executed by different threads
+	// Executed on different threads
 	@Override
 	public void update(Observable o, Object arg) {
 		TransferProgress transferProgress = (TransferProgress)arg;
-		SwingUtilities.invokeLater(new Runnable() {
-		      @Override
-		      public void run() {
-		    	  frame.manageTransferProgress(transferProgress);
-		      }
-		});
+		
+		// Do not invoke the Event Dispatch Thread too frequently as
+		// it may impact the performance of low-end computer systems.
+		if(System.currentTimeMillis() - lastGuiExecutionTime >= THROTTLE_TIME_MS || transferProgress.getTransferStatus() == TransferProgress.END) {
+			SwingUtilities.invokeLater(new Runnable() {
+			      @Override
+			      public void run() {
+			    	  frame.manageTransferProgress(transferProgress);
+			    	  lastGuiExecutionTime = System.currentTimeMillis();
+			      }
+			});
+		}
 	}
 	
 	public int computePercentage(TransferProgress transferProgress) {

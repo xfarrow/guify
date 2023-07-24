@@ -91,41 +91,22 @@ public class Queue extends JFrame implements IQueueFrame {
 	@Override
 	public void manageTransferProgress(TransferProgress transferProgress) {
 		
-		if(transferProgress.getTransferStatus() == TransferProgress.INIT) {
-			if(!controller.isTransferProgressInHashMap(transferProgress)) {
-				controller.putTableIndex(transferProgress, 
-								addRow(transferProgress.getSource(), 
-								transferProgress.getDestination(), 
-								transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
-								0));
-			}
-		}
+		// Remember that when QueueController calls frame.manageTransferProgress(transferProgress),
+		// here transferProgress might have a different status (as it's updated by a different thread).
+		// We do not need a lock as we do not edit it, but just keep it in mind.
 		
-		else if(transferProgress.getTransferStatus() == TransferProgress.UPDATING) {
-			if(!controller.isTransferProgressInHashMap(transferProgress)) {
-				controller.putTableIndex(transferProgress, 
-								addRow(transferProgress.getSource(), 
-								transferProgress.getDestination(), 
-								transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
-								controller.computePercentage(transferProgress)));
-			}
-			else {
+		if(!controller.isTransferProgressInHashMap(transferProgress)) {
+			controller.putTableIndex(transferProgress, 
+							addRow(transferProgress.getSource(), 
+							transferProgress.getDestination(), 
+							transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
+							controller.computePercentage(transferProgress)));
+		}
+		else {
+			if(transferProgress.getTransferStatus() != TransferProgress.INIT) {
 				updateRow(controller.getTableIndex(transferProgress), controller.computePercentage(transferProgress));
 			}
+			
 		}
-		
-		else if(transferProgress.getTransferStatus() == TransferProgress.END) {
-			if(!controller.isTransferProgressInHashMap(transferProgress)) {
-				controller.putTableIndex(transferProgress, 
-								addRow(transferProgress.getSource(), 
-								transferProgress.getDestination(), 
-								transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
-								100));
-			}
-			else {
-				updateRow(controller.getTableIndex(transferProgress), 100);
-			}
-		}
-		
 	}
 }

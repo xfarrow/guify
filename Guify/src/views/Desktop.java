@@ -98,6 +98,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(156, 36, 1098, 634);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(25);
 		getContentPane().add(scrollPane);
 		
 		desktopPanel = new JPanel();
