@@ -116,7 +116,17 @@ public class Queue extends JFrame implements IQueueFrame {
 		}
 		
 		else if(transferProgress.getTransferStatus() == TransferProgress.END) {
-			// Do nothing
+			Integer tableIndex = controller.getTableIndex(transferProgress);
+			if(tableIndex == null) {
+				controller.putTableIndex(transferProgress, 
+								addRow(transferProgress.getSource(), 
+								transferProgress.getDestination(), 
+								transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
+								100));
+			}
+			else {
+				updateRow(tableIndex, 100);
+			}
 		}
 		
 	}
