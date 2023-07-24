@@ -7,6 +7,7 @@ import com.jcraft.jsch.SftpException;
 import code.Constants;
 import code.Constants.Constants_FSOperations;
 import code.GuiAbstractions.Implementations.JFrameFactory;
+import controllers.LoginController.LoginCredentials;
 import views.interfaces.IDesktopFrame;
 import code.TreeNode;
 import code.Helper;
@@ -428,6 +429,13 @@ public class DesktopController {
 	
 	public void showFrame(boolean show) {
 		frame.setVisible(show);
+	}
+	
+	public String getTitle() {
+		StringBuilder title = new StringBuilder(Constants.APP_NAME);
+		title.append(" - ");
+		title.append(LoginCredentials.host);
+		return title.toString();
 	}
 	
 	/*

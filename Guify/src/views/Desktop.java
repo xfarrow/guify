@@ -89,7 +89,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1280, 720);
 		getContentPane().setLayout(null);
-		setTitle(Constants.APP_NAME);
+		setTitle(this.controller.getTitle());
 		
 		treePanel = new JScrollPane();
 		treePanel.setBounds(0, 36, 150, 634);
