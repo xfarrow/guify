@@ -10,9 +10,7 @@ import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-
 import com.jcraft.jsch.SftpProgressMonitor;
-
 import code.Constants;
 import code.TransferProgress;
 import controllers.QueueController;
@@ -98,15 +96,12 @@ public class Queue extends JFrame implements IQueueFrame {
 		if(!controller.isTransferProgressInHashMap(transferProgress)) {
 			controller.putTableIndex(transferProgress, 
 							addRow(transferProgress.getSource(), 
-							transferProgress.getDestination(), 
-							transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
-							controller.computePercentage(transferProgress)));
+									transferProgress.getDestination(), 
+									transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
+											controller.computePercentage(transferProgress)));
 		}
 		else {
-			if(transferProgress.getTransferStatus() != TransferProgress.INIT) {
-				updateRow(controller.getTableIndex(transferProgress), controller.computePercentage(transferProgress));
-			}
-			
+			updateRow(controller.getTableIndex(transferProgress), controller.computePercentage(transferProgress));
 		}
 	}
 }
