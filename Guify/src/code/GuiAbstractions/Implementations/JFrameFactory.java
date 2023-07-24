@@ -8,43 +8,7 @@ import views.*;
  */
 public class JFrameFactory implements IFrameFactory {
 	
-	public static Object createJFrame(int frameType) throws Exception {
-		
-		switch(frameType) {
-		
-		case LOGIN:
-			throw new Exception("Frame Login requires additional parameters. "
-					+ "Call createJFrame(int frameType, Object additionalParameters) instead");
-			
-		case DESKTOP:
-			throw new Exception("Frame Desktop requires additional parameters. "
-					+ "Call createJFrame(int frameType, Object additionalParameters) instead");
-			
-		case QUEUE:
-			return new Queue();
-			
-		case NOTEPAD:
-			throw new Exception("Frame Notepad requires additional parameters. "
-					+ "Call createJFrame(int frameType, Object additionalParameters) instead");
-			
-		case FIND_AND_REPLACE:
-			throw new Exception("Frame FindAndReplace requires additional parameters. "
-					+ "Call createJFrame(int frameType, Object additionalParameters) instead");
-			
-		default:
-			throw new Exception("Invalid frame name");
-		}
-	}
-	
 	public static Object createJFrame(int frameType, Object controller) throws Exception{
-		
-		if(	frameType != NOTEPAD 
-			&& frameType != FIND_AND_REPLACE 
-			&& frameType != LOGIN 
-			&& frameType != DESKTOP) {
-				System.err.println("additionalParams ignored for this frame");
-				return createJFrame(frameType);
-		}
 		
 		switch(frameType) {
 		
@@ -59,6 +23,9 @@ public class JFrameFactory implements IFrameFactory {
 			
 		case FIND_AND_REPLACE:
 			return new FindAndReplace(controller);
+			
+		case QUEUE:
+			return new Queue(controller);
 		
 		default:
 			throw new Exception("Invalid frame name");

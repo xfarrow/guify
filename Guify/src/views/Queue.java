@@ -11,19 +11,24 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
+import com.jcraft.jsch.SftpProgressMonitor;
+
 import code.Constants;
+import code.TransferProgress;
+import controllers.QueueController;
 import views.interfaces.IQueueFrame;
 public class Queue extends JFrame implements IQueueFrame {
 
 	private static final long serialVersionUID = 1L;
-
+	private QueueController controller;
+	
 	/**
 	 *
 	 * Custom cell renderer in order to be able to display
 	 * a progress bar in the JTable
 	 *
 	 */
-	public static class ProgressBarTableCellRenderer extends DefaultTableCellRenderer {
+ 	public static class ProgressBarTableCellRenderer extends DefaultTableCellRenderer {
 		private static final long serialVersionUID = 1L;
 		private JProgressBar progressBar;
 		
@@ -52,7 +57,8 @@ public class Queue extends JFrame implements IQueueFrame {
 	
 	public DefaultTableModel tableModel;
 	
-	public Queue() {
+	public Queue(Object controller) {
+		this.controller = (QueueController) controller;
 		setTitle("Queue");
 		String[] columnNames = {"Source", "Destination", "Operation", "Percentage"};
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -80,5 +86,38 @@ public class Queue extends JFrame implements IQueueFrame {
 		if(rowIndex < tableModel.getRowCount()) {
 			tableModel.setValueAt(percentage, rowIndex, 3);
 		}
+	}
+
+	@Override
+	public void manageTransferProgress(TransferProgress transferProgress) {
+		
+		if(transferProgress.getTransferStatus() == TransferProgress.INIT) {
+			if(controller.getTableIndex(transferProgress) == null) {
+				controller.putTableIndex(transferProgress, 
+								addRow(transferProgress.getSource(), 
+								transferProgress.getDestination(), 
+								transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
+								0));
+			}
+		}
+		
+		else if(transferProgress.getTransferStatus() == TransferProgress.UPDATING) {
+			Integer tableIndex = controller.getTableIndex(transferProgress);
+			if(tableIndex == null) {
+				controller.putTableIndex(transferProgress, 
+								addRow(transferProgress.getSource(), 
+								transferProgress.getDestination(), 
+								transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
+								controller.computePercentage(transferProgress)));
+			}
+			else {
+				updateRow(tableIndex, controller.computePercentage(transferProgress));
+			}
+		}
+		
+		else if(transferProgress.getTransferStatus() == TransferProgress.END) {
+			// Do nothing
+		}
+		
 	}
 }
