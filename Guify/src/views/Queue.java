@@ -86,6 +86,34 @@ public class Queue extends JFrame implements IQueueFrame {
 		}
 	}
 
+	// This method can receive a transferProgress whose status can be INIT, UPDATING
+	// or END.
+	// In all of these cases it is possible that transferProgress is or is not in the HashMap,
+	// and we'll prove its correctness in all the cases:
+	//
+	// 1. Init: This method can receive a transferProgress whose status is INIT and
+	// 		a. Not present in the HashMap: this can happen both when QueueController receives
+	// 		an update() and when it iterates in the constructor over the previously enqueued
+	//		elements. In both cases, the transfer gets correctly put in the table.
+	//		b. Present in the HashMap: despite it's counterintuitive, this can happen when 
+	// 		a transfer gets initialized after QueueEventManager.getInstance().addObserver(this);
+	//		and before QueueEventManager.getInstance().getQueue().
+	// 		This would lead either update()
+	//		or the QueueController's constructor to call this method over a transferProgress
+	//		already in the HashMap but whose status is INIT. In this case, updateRow() will
+	//		be called, but without any side effects as the percentage would be zero regardless.
+	//
+	// 2. Updating:
+	//		a. Not present in the HashMap: This can happen when the Queue UI is opened
+	//		while an element is already being transferred. If it's not present in the HashMap
+	//		it's added.
+	//		b. Present in the HashMap: it will be updated.
+	//
+	// 3. End: Same case for Updating
+	//
+	// If any update gets triggered after QueueEventManager.getInstance().addObserver(this);
+	// and before QueueEventManager.getInstance().getQueue(), it is possible that [...]
+	// but this would not create any problems
 	@Override
 	public void manageTransferProgress(TransferProgress transferProgress) {
 		
@@ -98,7 +126,7 @@ public class Queue extends JFrame implements IQueueFrame {
 							addRow(transferProgress.getSource(), 
 									transferProgress.getDestination(), 
 									transferProgress.getOperation() == SftpProgressMonitor.GET? "Download" : "Upload", 
-											controller.computePercentage(transferProgress)));
+									controller.computePercentage(transferProgress)));
 		}
 		else {
 			updateRow(controller.getTableIndex(transferProgress), controller.computePercentage(transferProgress));
