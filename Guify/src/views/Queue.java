@@ -80,6 +80,13 @@ public class Queue extends JFrame implements IQueueFrame {
         return tableModel.getRowCount() - 1;
 	}
 	
+	/**
+	 * Given a value (representing the transfer completion percentage)
+	 * and an index representing the 0-based index of the row to update, 
+	 * update that row with that value
+	 * @param rowIndex 0-base index of the row to update
+	 * @param percentage The transfer completion percentage to set
+	 */
 	public void updateRow(int rowIndex, int percentage) {
 		if(rowIndex < tableModel.getRowCount()) {
 			tableModel.setValueAt(percentage, rowIndex, 3);
@@ -92,33 +99,47 @@ public class Queue extends JFrame implements IQueueFrame {
 	// and we'll prove its correctness in all the cases:
 	//
 	// 1. Init: This method can receive a transferProgress whose status is INIT and
-	// 		a. Not present in the HashMap: this can happen both when QueueController receives
-	// 		an update() and when it iterates in the constructor over the previously enqueued
+	// 		a. Not present in the HashMap: this can happen either when QueueController receives
+	// 		an update() or when it iterates in the constructor over the previously enqueued
 	//		elements. In both cases, the transfer gets correctly put in the table.
 	//		b. Present in the HashMap: despite it's counterintuitive, this can happen when 
 	// 		a transfer gets initialized after QueueEventManager.getInstance().addObserver(this);
 	//		and before QueueEventManager.getInstance().getQueue().
 	// 		This would lead either update()
 	//		or the QueueController's constructor to call this method over a transferProgress
-	//		already in the HashMap but whose status is INIT. In this case, updateRow() will
+	//		already in the HashMap (because inserted by the other one)
+	//		but whose status is INIT. In this case, updateRow() will
 	//		be called, but without any side effects as the percentage would be zero regardless.
 	//
 	// 2. Updating:
 	//		a. Not present in the HashMap: This can happen when the Queue UI is opened
-	//		while an element is already being transferred. If it's not present in the HashMap
-	//		it's added.
-	//		b. Present in the HashMap: it will be updated.
+	//		while an element is already being transferred. This happens because when
+	//		the transfer had a "INIT" status, this object did not exist yet.
+	//		If it's not present in the HashMap
+	//		then it will be added.
+	//		b. Present in the HashMap: then it will be correctly updated.
 	//
 	// 3. End: Same case for Updating
 	//
-	// If any update gets triggered after QueueEventManager.getInstance().addObserver(this);
-	// and before QueueEventManager.getInstance().getQueue(), it is possible that [...]
-	// but this would not create any problems
+	// It's important to note that this method will always operate over the 
+	// last version of the same TransferProgress object as it is updated 
+	// from another thread when any chunk of data is transmitted. 
+	// This will not create any inconsistencies, because the only
+	// attribute that can be different is getTransferredBytes which will
+	// be read just once per call, nor race conditions
+	// because this method only performs reads, without modifying.
+	//
+	// This ensures that at any
+	// time t1, the value of the percentage of a specific TransferProgress
+	// will always be equal or greater than the value it was at any time t
+	// where t < t1. In other words it's impossible that the progress bar
+	// will go down (e.g. from 50% to 49%).
 	@Override
 	public void manageTransferProgress(TransferProgress transferProgress) {
 		
 		// Remember that when QueueController calls frame.manageTransferProgress(transferProgress),
-		// here transferProgress might have a different status (as it's updated by a different thread).
+		// here transferProgress might have different attributes than it was originally called on
+		// (as it's updated by a different thread).
 		// We do not need a lock as we do not edit it, but just keep it in mind.
 		
 		if(!controller.isTransferProgressInHashMap(transferProgress)) {

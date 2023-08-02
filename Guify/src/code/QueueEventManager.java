@@ -11,8 +11,6 @@ public class QueueEventManager extends Observable {
     private QueueEventManager() {}
     
     // We need this object in order to retrieve old transfers which are not being transferred
-    // TODO Prove mathematical correctness
-    // See documentation
     ConcurrentLinkedQueue<TransferProgress> queue = new ConcurrentLinkedQueue<TransferProgress>();
     
     public static synchronized QueueEventManager getInstance() {
