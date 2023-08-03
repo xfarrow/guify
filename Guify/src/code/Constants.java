@@ -4,8 +4,8 @@ import java.awt.Color;
 
 public class Constants {
 	public static final String APP_NAME = "Guify";
-	public static final String VERSION = "1.0.2";
-	public static final int VERSION_PROGRESSIVE = 2;
+	public static final String VERSION = "1.0.3";
+	public static final int VERSION_PROGRESSIVE = 3;
 	
 	public static class Constants_FSOperations{
 		public static final int NONE = 0;
