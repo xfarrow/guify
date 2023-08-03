@@ -117,6 +117,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
         createJToolBar();
         getContentPane().add(toolBar, BorderLayout.NORTH);
 		setSize(1280, 720);
+		setLocationRelativeTo(null);
 		
 		addWindowListener(new WindowAdapter() {
 	        @Override
