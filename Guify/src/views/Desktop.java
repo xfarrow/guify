@@ -86,39 +86,37 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	public Desktop(Object controller) {
 		this.controller = (DesktopController) controller;
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1280, 720);
-		getContentPane().setLayout(null);
-		setTitle(this.controller.getTitle());
-		
-		treePanel = new JScrollPane();
-		treePanel.setBounds(0, 36, 150, 634);
-		getContentPane().add(treePanel);
-		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(156, 36, 1098, 634);
-		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.getVerticalScrollBar().setUnitIncrement(25);
-		getContentPane().add(scrollPane);
-		
-		desktopPanel = new JPanel();
-		scrollPane.setViewportView(desktopPanel);
-		desktopPanel.setLayout(new WrapLayout(FlowLayout.LEFT, 5, 5));
-		desktopPanel.setBackground(Color.WHITE);
-		desktopPanel.addMouseListener(new MouseAdapter() {
-		    @Override
-		    public void mouseClicked(MouseEvent e){
-		    	unselectAllNodes();
-		    	desktopPanel.requestFocus();
-		    }
-		});
-		
-		toolBar = new JToolBar();
-		toolBar.setFloatable(false);
-		toolBar.setBounds(0, 0, 614, 37);
-		toolBar.setBackground(GuifyColors.GRAY);
-		createJToolBar();
-		getContentPane().add(toolBar);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle(this.controller.getTitle());
+        getContentPane().setLayout(new BorderLayout());
+        
+        treePanel = new JScrollPane();
+        // You can adjust the preferred size as needed
+        treePanel.setPreferredSize(new Dimension(150, 634));
+        getContentPane().add(treePanel, BorderLayout.WEST);
+
+        desktopPanel = new JPanel();
+        desktopPanel.setLayout(new WrapLayout(FlowLayout.LEFT, 5, 5));
+        desktopPanel.setBackground(Color.WHITE);
+        desktopPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                unselectAllNodes();
+                desktopPanel.requestFocus();
+            }
+        });
+
+        JScrollPane scrollPane = new JScrollPane(desktopPanel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(25);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+        toolBar = new JToolBar();
+        toolBar.setFloatable(false);
+        toolBar.setBackground(GuifyColors.GRAY);
+        createJToolBar();
+        getContentPane().add(toolBar, BorderLayout.NORTH);
+		setSize(1280, 720);
 		
 		addWindowListener(new WindowAdapter() {
 	        @Override
@@ -137,7 +135,6 @@ public class Desktop extends JFrame implements IDesktopFrame {
 			@Override
 			public void dragOver(DropTargetDragEvent dtde) {
 				desktopPanel.setBorder(new LineBorder(GuifyColors.BLUE, 2));
-				
 			}
 
 			@Override
@@ -440,6 +437,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	 */
 	private void createJToolBar() {
 		JButton backBtn = new JButton();
+		
 		backBtn.setBorderPainted(false);
 		backBtn.setBorder(new EmptyBorder(0, 0, 0, 0)); // Set empty border;
 		backBtn.setToolTipText("Back");
@@ -913,7 +911,9 @@ public class Desktop extends JFrame implements IDesktopFrame {
 		
 		
 		pathTextBox = new JTextField();
-		pathTextBox.setPreferredSize(new Dimension(100, pathTextBox.getPreferredSize().height));
+		pathTextBox.setMaximumSize(new Dimension(200, 35));
+		pathTextBox.setMinimumSize(new Dimension(50, 35));
+		pathTextBox.setPreferredSize(new Dimension(200, 35));
         Font font = pathTextBox.getFont();
         Font biggerFont = font.deriveFont(font.getSize() + 4f); // Increase font size by 4
         pathTextBox.setFont(biggerFont);
