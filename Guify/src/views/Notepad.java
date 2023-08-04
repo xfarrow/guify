@@ -28,12 +28,12 @@ public class Notepad extends JFrame implements INotepadFrame {
 	
 	private static final long serialVersionUID = 1L;
 	private NotepadController controller;
+	private boolean jtextAreaShouldListenForChanges = true;
+	private JTextArea textArea;
+	
 	/**
 	 * Create the application.
 	 */
-	
-	JTextArea textArea;
-	
 	public Notepad(Object controller) {
 		this.controller = (NotepadController) controller;
 		setTitle(this.controller.getFilePath());
@@ -70,7 +70,7 @@ public class Notepad extends JFrame implements INotepadFrame {
             }
 
             private void handleTextChange() {
-            	if(!((NotepadController)controller).isUnsaved()) {
+            	if(!((NotepadController)controller).isUnsaved() && jtextAreaShouldListenForChanges) {
             		((NotepadController)controller).setUnsaved(true);
             		setTitle(((NotepadController)controller).getTitle());
             	}
@@ -118,7 +118,7 @@ public class Notepad extends JFrame implements INotepadFrame {
 		
 		JButton searchBtn = new JButton();
 		searchBtn.setBorderPainted(false);
-		searchBtn.setBorder(new EmptyBorder(0, 0, 0, 0)); // Set empty border);
+		searchBtn.setBorder(new EmptyBorder(0, 0, 0, 0)); // Set empty border;
 		searchBtn.setToolTipText("Serch/Replace");
 		try {
 			searchBtn.setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResource("search_icon.png")).getScaledInstance(25, 25, Image.SCALE_SMOOTH)));
@@ -166,8 +166,14 @@ public class Notepad extends JFrame implements INotepadFrame {
 	    });	
 	}
 	
+	/**
+	 * Sets text in the JTextArea without triggering
+	 * a text changed action
+	 */
 	public void displayContent(String content) {
+		jtextAreaShouldListenForChanges = false;
 		textArea.setText(content);
+		jtextAreaShouldListenForChanges = true;
 	}
 	
 }
