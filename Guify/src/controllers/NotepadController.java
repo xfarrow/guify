@@ -11,6 +11,7 @@ public class NotepadController {
 	private INotepadFrame notepadFrame = null;
 	private FindAndReplaceController myFindAndReplaceController;
 	private boolean unsaved = false;
+	private String initialText = null;
 	
 	public boolean isUnsaved() {
 		return unsaved;
@@ -24,12 +25,15 @@ public class NotepadController {
 		return this.filePath;
 	}
 	
+	public String getInitialText() {
+		return this.initialText;
+	}
+	
 	public NotepadController(String filePath) {
 		this.filePath = filePath;
-		String contentToDisplay = SshEngine.readFile(filePath);
+		initialText = SshEngine.readFile(filePath);
 		try {
 			notepadFrame = (INotepadFrame) JFrameFactory.createJFrame(IFrameFactory.NOTEPAD, this);
-			notepadFrame.displayContent(contentToDisplay);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;

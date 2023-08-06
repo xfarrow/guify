@@ -31,9 +31,6 @@ public class Notepad extends JFrame implements INotepadFrame {
 	private boolean jtextAreaShouldListenForChanges = true;
 	private JTextArea textArea;
 	
-	/**
-	 * Create the application.
-	 */
 	public Notepad(Object controller) {
 		this.controller = (NotepadController) controller;
 		setTitle(this.controller.getFilePath());
@@ -50,6 +47,7 @@ public class Notepad extends JFrame implements INotepadFrame {
 		textArea.setTabSize(4);
 		textArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		textArea.setCaretPosition(0);
+		textArea.setText(((NotepadController)controller).getInitialText());
 		textArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -165,15 +163,4 @@ public class Notepad extends JFrame implements INotepadFrame {
 	        }
 	    });	
 	}
-	
-	/**
-	 * Sets text in the JTextArea without triggering
-	 * a text changed action
-	 */
-	public void displayContent(String content) {
-		jtextAreaShouldListenForChanges = false;
-		textArea.setText(content);
-		jtextAreaShouldListenForChanges = true;
-	}
-	
 }
