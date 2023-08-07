@@ -3,12 +3,9 @@ package views;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
-import code.Constants;
 import code.Constants.GuifyColors;
 import controllers.LoginController;
 import views.interfaces.ILoginFrame;
-
 import javax.swing.JPasswordField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -31,9 +28,10 @@ public class Login extends JFrame implements ILoginFrame {
 	public Login(Object controller) {
 		this.controller = (LoginController) controller;
 		
-		setTitle(Constants.APP_NAME);
+		setTitle(this.controller.getTitle());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 312, 400);
+		setResizable(false);
+		setBounds(100, 100, 300, 400);
 		contentPane = new JPanel();
 		contentPane.setForeground(Color.WHITE);
 		contentPane.setBackground(Color.WHITE);

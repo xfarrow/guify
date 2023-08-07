@@ -3,6 +3,7 @@ package controllers;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import code.Constants;
 import code.SshEngine;
 import code.GuiAbstractions.Implementations.JFrameFactory;
 import code.GuiAbstractions.Interfaces.IFrameFactory;
@@ -57,6 +58,10 @@ public class LoginController {
 	
 	public void showFrame(boolean show) {
 		frame.setVisible(show);
+	}
+	
+	public String getTitle() {
+		return Constants.APP_NAME + " " + Constants.VERSION;
 	}
 	
 	public static class LoginCredentials{

@@ -1,7 +1,9 @@
 package views;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -11,11 +13,9 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import code.GuiAbstractions.Implementations.JGenericTextArea;
 import controllers.NotepadController;
 import views.interfaces.INotepadFrame;
-
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
@@ -24,11 +24,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import javax.swing.JScrollPane;
+import javax.swing.JPanel;
+
 public class Notepad extends JFrame implements INotepadFrame {
 	
 	private static final long serialVersionUID = 1L;
 	private NotepadController controller;
-	private boolean jtextAreaShouldListenForChanges = true;
 	private JTextArea textArea;
 	
 	public Notepad(Object controller) {
@@ -36,12 +37,12 @@ public class Notepad extends JFrame implements INotepadFrame {
 		setTitle(this.controller.getFilePath());
 		setBounds(100, 100, 800, 600);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		getContentPane().setLayout(null);
-		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 38, 764, 512);
-		getContentPane().add(scrollPane);
-		
+		getContentPane().setLayout(new BorderLayout());
+		JPanel contentPanel = new JPanel(new BorderLayout());
+		JScrollPane scrollPane = new JScrollPane(textArea);
+		contentPanel.add(scrollPane, BorderLayout.CENTER);
+		contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10)); // We want to create a spaced JPanel
+		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		textArea = new JTextArea();
 		scrollPane.setViewportView(textArea);
 		textArea.setTabSize(4);
@@ -68,17 +69,12 @@ public class Notepad extends JFrame implements INotepadFrame {
             }
 
             private void handleTextChange() {
-            	if(!((NotepadController)controller).isUnsaved() && jtextAreaShouldListenForChanges) {
+            	if(!((NotepadController)controller).isUnsaved()) {
             		((NotepadController)controller).setUnsaved(true);
             		setTitle(((NotepadController)controller).getTitle());
             	}
             }
         });
-		
-		JToolBar toolBar = new JToolBar();
-		toolBar.setFloatable(false);
-		toolBar.setBounds(10, 0, 614, 37);
-		toolBar.setBackground(new Color(240, 240, 240));
 		
 		JButton saveBtn = new JButton();
 		saveBtn.setBorderPainted(false);
@@ -146,11 +142,17 @@ public class Notepad extends JFrame implements INotepadFrame {
             }
 		});
 		
+		JToolBar toolBar = new JToolBar();
+		toolBar.setFloatable(false);
+		JPanel toolBarPanel = new JPanel(new BorderLayout());
+		toolBarPanel.setBorder(BorderFactory.createEmptyBorder(0, 7, 0, 0)); 
+		toolBarPanel.add(toolBar, BorderLayout.LINE_START);
+		toolBar.setBackground(new Color(240, 240, 240));
 		toolBar.add(saveBtn);
 		toolBar.add(Box.createHorizontalStrut(15));
 		toolBar.add(searchBtn);
 		
-		getContentPane().add(toolBar);
+		getContentPane().add(toolBarPanel, BorderLayout.NORTH);
 
 		/**
 		 * Close "Find and Replace" if this window
