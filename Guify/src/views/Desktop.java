@@ -14,6 +14,7 @@ import code.Constants;
 import code.Constants.GuifyColors;
 import code.TreeNode;
 import code.Helper;
+import code.IDirectoryNodeButton;
 import code.JDirectoryNodeButton;
 import code.WrapLayout;
 import controllers.DesktopController;
@@ -1155,13 +1156,11 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	}
 
 	private void unselectAllNodes() {
-		controller.clearSelectedNodes();
-		// TODO: gotta enhance this for
-		for (Component component : desktopPanel.getComponents()) {
-			if (component instanceof JDirectoryNodeButton) {
-				component.setBackground(new Color(255, 255, 255));
-			}
+		for (IDirectoryNodeButton directoryNode : controller
+				.getSelectedNodes()) {
+			((JDirectoryNodeButton)directoryNode).setBackground(new Color(255, 255, 255));
 		}
+		controller.clearSelectedNodes();
 		updateToolBarItems();
 	}
 
