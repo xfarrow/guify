@@ -16,29 +16,29 @@ import java.nio.file.*;
 
 /**
  * 
- * Underlying SSH engine for
- * the application
+ * Underlying SSH engine for the application
  *
  */
 public class SshEngine {
-	
+
 	private static Session session = null;
-	
+
 	/*
 	 * ========== BEGIN SSH Utilities ==========
 	 */
-	
+
 	public static boolean connetion() {
 		return createSession();
 	}
-	
+
 	private static boolean createSession() {
 		Properties config = new Properties();
 		config.put("StrictHostKeyChecking", "no");
 		JSch jsch = new JSch();
 
 		try {
-			session = jsch.getSession(LoginController.LoginCredentials.username, LoginController.LoginCredentials.host,
+			session = jsch.getSession(LoginController.LoginCredentials.username,
+					LoginController.LoginCredentials.host,
 					LoginController.LoginCredentials.port);
 			session.setPassword(LoginController.LoginCredentials.password);
 			session.setConfig(config);
@@ -52,32 +52,31 @@ public class SshEngine {
 		return true;
 	}
 
-	private static void checkValidityOrCreateSession() throws JSchException {		
-		if(session == null || !session.isConnected()) {
-			if(!createSession()) {
+	private static void checkValidityOrCreateSession() throws JSchException {
+		if (session == null || !session.isConnected()) {
+			if (!createSession()) {
 				throw new JSchException("Failed to create a session in Jsch");
 			}
 		}
 	}
 
 	public static void disconnectSession() {
-		if(session != null) {
+		if (session != null) {
 			session.disconnect();
 		}
 	}
-	
+
 	/*
 	 * ========== END SSH Utilities ==========
 	 */
-	
 
 	/*
 	 * ========== BEGIN SFTP get() and put() methods ==========
 	 */
 
 	/**
-	 * Downloads a file from remote host to local machine.
-	 * Executed asynchronously.
+	 * Downloads a file from remote host to local machine. Executed
+	 * asynchronously.
 	 */
 	public static void downloadFile(String source, String dest) {
 		// We execute the lengthy and time-consuming operation on a different
@@ -85,36 +84,38 @@ public class SshEngine {
 		// We use SwingWorker so any GUI changes requested by this thread will
 		// be correctly addressed to the Event Dispatch Thread
 		new Thread(new Runnable() {
-		    public void run() {
-		    	ChannelSftp channelSftp = null;
+			public void run() {
+				ChannelSftp channelSftp = null;
 				try {
 					checkValidityOrCreateSession();
 					channelSftp = (ChannelSftp) session.openChannel("sftp");
 					channelSftp.connect();
-					channelSftp.get(source, dest, new GuifySftpProgressMonitor());
-					System.out.println("File " + source + " downloaded in " + dest);
+					channelSftp.get(source, dest,
+							new GuifySftpProgressMonitor());
+					System.out.println(
+							"File " + source + " downloaded in " + dest);
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
 					if (channelSftp != null)
 						channelSftp.disconnect();
 				}
-		    }
+			}
 		}).start();
 	}
-	
+
 	/**
-	 * Downloads a directory recursively.
-	 * Executed asynchronously.
+	 * Downloads a directory recursively. Executed asynchronously.
 	 */
-	public static void downloadDirectoryRecursively(String source, String dest) {
+	public static void downloadDirectoryRecursively(String source,
+			String dest) {
 		// We execute the lengthy and time-consuming operation on a different
 		// thread instead of the Event Dispatch Thread.
 		// We use SwingWorker so any GUI changes requested by this thread will
 		// be correctly addressed to the Event Dispatch Thread
 		new Thread(new Runnable() {
-		    public void run() {
-		    	ChannelSftp channelSftp = null;
+			public void run() {
+				ChannelSftp channelSftp = null;
 				try {
 					channelSftp = (ChannelSftp) session.openChannel("sftp");
 					channelSftp.connect();
@@ -125,143 +126,170 @@ public class SshEngine {
 					if (channelSftp != null)
 						channelSftp.disconnect();
 				}
-		    }
+			}
 		}).start();
 	}
-	
+
 	/**
 	 * Private utility
-	 * @param channel_aux An auxiliary SFTP channel
+	 * 
+	 * @param channel_aux
+	 *            An auxiliary SFTP channel
 	 * @param remoteDirectory
 	 * @param localDirectory
 	 * @throws SftpException
 	 */
-    private static void downloadDirectoryRecursively_aux(ChannelSftp channel_aux, String remoteDirectory, String localDirectory) throws SftpException {
-    	channel_aux.cd(remoteDirectory);
-        String newLocalDir = Helper.combinePath(localDirectory, Paths.get(remoteDirectory).getFileName().toString());
-        new java.io.File(newLocalDir).mkdirs();
-        @SuppressWarnings("unchecked")
+	private static void downloadDirectoryRecursively_aux(
+			ChannelSftp channel_aux, String remoteDirectory,
+			String localDirectory) throws SftpException {
+		channel_aux.cd(remoteDirectory);
+		String newLocalDir = Helper.combinePath(localDirectory,
+				Paths.get(remoteDirectory).getFileName().toString());
+		new java.io.File(newLocalDir).mkdirs();
+		@SuppressWarnings("unchecked")
 		Vector<LsEntry> entries = channel_aux.ls("*");
-        
-        for (ChannelSftp.LsEntry entry : entries) {
-            if (!entry.getAttrs().isDir()) {
-                // File - download it
-            	// Creates a thread for each file. If there are a lot of files
-            	// it may be resource-draining. Consider using a ThreadPool
-		    	downloadFile(Helper.combinePath(remoteDirectory,  entry.getFilename()), Helper.combinePath(newLocalDir, entry.getFilename()));
-            } else if (!".".equals(entry.getFilename()) && !"..".equals(entry.getFilename())) {
-            	// Directory - download recursively
-                String newRemoteDir = Helper.combinePath(remoteDirectory, entry.getFilename());
-                downloadDirectoryRecursively_aux(channel_aux, newRemoteDir, newLocalDir);
-            }
-        }
-    }
-	
+
+		for (ChannelSftp.LsEntry entry : entries) {
+			if (!entry.getAttrs().isDir()) {
+				// File - download it
+				// Creates a thread for each file. If there are a lot of files
+				// it may be resource-draining. Consider using a ThreadPool
+				downloadFile(
+						Helper.combinePath(remoteDirectory,
+								entry.getFilename()),
+						Helper.combinePath(newLocalDir, entry.getFilename()));
+			} else if (!".".equals(entry.getFilename())
+					&& !"..".equals(entry.getFilename())) {
+				// Directory - download recursively
+				String newRemoteDir = Helper.combinePath(remoteDirectory,
+						entry.getFilename());
+				downloadDirectoryRecursively_aux(channel_aux, newRemoteDir,
+						newLocalDir);
+			}
+		}
+	}
+
 	/**
-	 * Uploads a file from the local machine to the remote host.
-	 * Executed asynchronously.
+	 * Uploads a file from the local machine to the remote host. Executed
+	 * asynchronously.
 	 */
-	public static void uploadFile(File fileToUpload, String remoteDirectory) throws SftpException {
+	public static void uploadFile(File fileToUpload, String remoteDirectory)
+			throws SftpException {
 		// We execute the lengthy and time-consuming operation on a different
 		// thread instead of the Event Dispatch Thread.
 		// We use SwingWorker so any GUI changes requested by this thread will
 		// be correctly addressed to the Event Dispatch Thread
 		new Thread(new Runnable() {
-		    public void run() {
-		    	ChannelSftp channelSftp = null;
+			public void run() {
+				ChannelSftp channelSftp = null;
 				String remotePath = null;
 				try {
 					checkValidityOrCreateSession();
 					channelSftp = (ChannelSftp) session.openChannel("sftp");
 					channelSftp.connect();
-					remotePath = Helper.combinePath(remoteDirectory, fileToUpload.getName());
-					channelSftp.put(fileToUpload.getAbsolutePath(), remotePath, new GuifySftpProgressMonitor());
-					System.out.println("File: " + fileToUpload.getAbsolutePath() + " uploaded to remote path: " + remotePath);
-				}
-				catch(SftpException sftpex) {
+					remotePath = Helper.combinePath(remoteDirectory,
+							fileToUpload.getName());
+					channelSftp.put(fileToUpload.getAbsolutePath(), remotePath,
+							new GuifySftpProgressMonitor());
+					System.out.println("File: " + fileToUpload.getAbsolutePath()
+							+ " uploaded to remote path: " + remotePath);
+				} catch (SftpException sftpex) {
 					// TODO maybe no permissions
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
 					if (channelSftp != null)
 						channelSftp.disconnect();
 				}
-		    }
+			}
 		}).start();
 	}
-	
+
 	/**
-	 * Uploads directory recursively.
-	 * Executed asynchronously.
-	 * @param directory Full path of the local directory to upload
-	 * @param remoteDirectory Full path of the remote directory which the local
-	 * directory will be uploaded in
+	 * Uploads directory recursively. Executed asynchronously.
+	 * 
+	 * @param directory
+	 *            Full path of the local directory to upload
+	 * @param remoteDirectory
+	 *            Full path of the remote directory which the local directory
+	 *            will be uploaded in
 	 */
-	public static void uploadDirectoriesRecursively(File directory, String remoteDirectory) throws SftpException {
+	public static void uploadDirectoriesRecursively(File directory,
+			String remoteDirectory) throws SftpException {
 		// We execute the lengthy and time-consuming operation on a different
 		// thread instead of the Event Dispatch Thread.
 		// We use SwingWorker so any GUI changes requested by this thread will
 		// be correctly addressed to the Event Dispatch Thread
 		new Thread(new Runnable() {
-		    public void run() {
+			public void run() {
 				ChannelSftp channelSftp = null;
 				try {
 					checkValidityOrCreateSession();
 					channelSftp = (ChannelSftp) session.openChannel("sftp");
 					channelSftp.connect();
-					uploadDirectoriesRecursively_aux(channelSftp, directory, remoteDirectory);
-				} 
-				catch(SftpException sftpex) {
-					//TODO maybe no permissions
-				}
-				catch (Exception e) {
+					uploadDirectoriesRecursively_aux(channelSftp, directory,
+							remoteDirectory);
+				} catch (SftpException sftpex) {
+					// TODO maybe no permissions
+				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
 					if (channelSftp != null)
 						channelSftp.disconnect();
 				}
-		    }
+			}
 		}).start();
 	}
-	
+
 	/**
 	 * Private utility
+	 * 
 	 * @param channel_aux
 	 * @param localPath
 	 * @param remoteDirectory
 	 * @throws SftpException
 	 */
-    private static void uploadDirectoriesRecursively_aux(ChannelSftp channel_aux, File localPath, String remoteDirectory) throws SftpException {
-    	if(localPath != null) {
-    		String subDirectoryPath = Helper.combinePath(remoteDirectory, localPath.getName());
-    		channel_aux.mkdir(subDirectoryPath);
-            
-            File[] files = localPath.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile()) {
-                    	// Creates a thread for each file. If there are a lot of files
-                    	// it may be resource-draining. Consider using a ThreadPool
-                    	channel_aux.put(file.getAbsolutePath(), Helper.combinePath(subDirectoryPath, file.getName()), new GuifySftpProgressMonitor());
-                        System.out.println("File: " + file.getAbsolutePath() + " uploaded to remote path: " +  Helper.combinePath(subDirectoryPath, file.getName()));
-                    } else if (file.isDirectory()) {
-                    	uploadDirectoriesRecursively_aux(channel_aux, file, subDirectoryPath);
-                    }
-                }
-            }
-    	}
-    }
-    
+	private static void uploadDirectoriesRecursively_aux(
+			ChannelSftp channel_aux, File localPath, String remoteDirectory)
+			throws SftpException {
+		if (localPath != null) {
+			String subDirectoryPath = Helper.combinePath(remoteDirectory,
+					localPath.getName());
+			channel_aux.mkdir(subDirectoryPath);
+
+			File[] files = localPath.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					if (file.isFile()) {
+						// Creates a thread for each file. If there are a lot of
+						// files
+						// it may be resource-draining. Consider using a
+						// ThreadPool
+						channel_aux.put(file.getAbsolutePath(),
+								Helper.combinePath(subDirectoryPath,
+										file.getName()),
+								new GuifySftpProgressMonitor());
+						System.out.println("File: " + file.getAbsolutePath()
+								+ " uploaded to remote path: "
+								+ Helper.combinePath(subDirectoryPath,
+										file.getName()));
+					} else if (file.isDirectory()) {
+						uploadDirectoriesRecursively_aux(channel_aux, file,
+								subDirectoryPath);
+					}
+				}
+			}
+		}
+	}
+
 	/*
 	 * ========== END SFTP get() and put() methods ==========
 	 */
-    
-    
+
 	/*
 	 * ========== BEGIN File System operations ==========
 	 */
-    
+
 	public static void mkdir(String path) throws SftpException {
 		ChannelSftp channelSftp = null;
 		try {
@@ -269,18 +297,16 @@ public class SshEngine {
 			channelSftp = (ChannelSftp) session.openChannel("sftp");
 			channelSftp.connect();
 			channelSftp.mkdir(path);
-		}
-		catch(SftpException sftpex) {
-				throw sftpex;
-		}
-		catch (Exception e) {
+		} catch (SftpException sftpex) {
+			throw sftpex;
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (channelSftp != null)
 				channelSftp.disconnect();
 		}
 	}
-	
+
 	public static String readFile(String filePath) {
 		ChannelSftp channel = null;
 		try {
@@ -296,14 +322,15 @@ public class SshEngine {
 				channel.disconnect();
 		}
 	}
-	
+
 	public static void writeFile(String content, String pathToFile) {
 		ChannelSftp channelSftp = null;
 		try {
 			checkValidityOrCreateSession();
 			channelSftp = (ChannelSftp) session.openChannel("sftp");
 			channelSftp.connect();
-			channelSftp.put(new ByteArrayInputStream(content.getBytes()), pathToFile);
+			channelSftp.put(new ByteArrayInputStream(content.getBytes()),
+					pathToFile);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -311,29 +338,29 @@ public class SshEngine {
 				channelSftp.disconnect();
 		}
 	}
-	
-	public static void rename(String oldPath, String newPath) throws SftpException {
+
+	public static void rename(String oldPath, String newPath)
+			throws SftpException {
 		ChannelSftp channelSftp = null;
 		try {
 			checkValidityOrCreateSession();
 			channelSftp = (ChannelSftp) session.openChannel("sftp");
 			channelSftp.connect();
 			channelSftp.rename(oldPath, newPath);
-		} 
-		catch(SftpException sftpex) {
+		} catch (SftpException sftpex) {
 			throw sftpex;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (channelSftp != null)
 				channelSftp.disconnect();
 		}
 	}
-	
+
 	/**
 	 * Creates an empty file in the specified remote file path
-	 * @throws SftpException 
+	 * 
+	 * @throws SftpException
 	 */
 	public static void touch(String remoteFilePath) throws SftpException {
 		ChannelSftp channelSftp = null;
@@ -341,19 +368,18 @@ public class SshEngine {
 			checkValidityOrCreateSession();
 			channelSftp = (ChannelSftp) session.openChannel("sftp");
 			channelSftp.connect();
-			channelSftp.put(new ByteArrayInputStream(new byte[0]), remoteFilePath);
-		} 
-		catch(SftpException sftpex) {
+			channelSftp.put(new ByteArrayInputStream(new byte[0]),
+					remoteFilePath);
+		} catch (SftpException sftpex) {
 			throw sftpex;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (channelSftp != null)
 				channelSftp.disconnect();
 		}
 	}
-	
+
 	public static void rm(String remoteFilePath) throws SftpException {
 		ChannelSftp channelSftp = null;
 		try {
@@ -361,43 +387,40 @@ public class SshEngine {
 			channelSftp = (ChannelSftp) session.openChannel("sftp");
 			channelSftp.connect();
 			channelSftp.rm(remoteFilePath);
-		} 
-		catch(SftpException sftpex) {
+		} catch (SftpException sftpex) {
 			throw sftpex;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (channelSftp != null)
 				channelSftp.disconnect();
 		}
 	}
-	
+
 	public static void rm(List<String> remoteFilePaths) throws SftpException {
 		ChannelSftp channelSftp = null;
 		try {
 			checkValidityOrCreateSession();
 			channelSftp = (ChannelSftp) session.openChannel("sftp");
 			channelSftp.connect();
-			for(String remoteFilePath : remoteFilePaths) {
+			for (String remoteFilePath : remoteFilePaths) {
 				rm(remoteFilePath, channelSftp);
 			}
-		} 
-		catch(SftpException sftpex) {
+		} catch (SftpException sftpex) {
 			throw sftpex;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (channelSftp != null)
 				channelSftp.disconnect();
 		}
 	}
-	
-	private static void rm(String remoteFilePath, ChannelSftp channelSftp) throws SftpException, JSchException {
+
+	private static void rm(String remoteFilePath, ChannelSftp channelSftp)
+			throws SftpException, JSchException {
 		channelSftp.rm(remoteFilePath);
 	}
-	
+
 	public static void rmdir(String remoteFilePath) throws SftpException {
 		ChannelSftp channelSftp = null;
 		try {
@@ -405,45 +428,43 @@ public class SshEngine {
 			channelSftp = (ChannelSftp) session.openChannel("sftp");
 			channelSftp.connect();
 			channelSftp.rmdir(remoteFilePath);
-		} 
-		catch(SftpException sftpex) {
+		} catch (SftpException sftpex) {
 			throw sftpex;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (channelSftp != null)
 				channelSftp.disconnect();
 		}
 	}
-	
+
 	public static void rmdir(List<String> remotePaths) throws SftpException {
 		ChannelSftp channelSftp = null;
 		try {
 			checkValidityOrCreateSession();
 			channelSftp = (ChannelSftp) session.openChannel("sftp");
 			channelSftp.connect();
-			for(String remotePath : remotePaths) {
+			for (String remotePath : remotePaths) {
 				rmdir(remotePath, channelSftp);
 			}
-		} 
-		catch(SftpException sftpex) {
+		} catch (SftpException sftpex) {
 			throw sftpex;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (channelSftp != null)
 				channelSftp.disconnect();
 		}
 	}
-	
-	private static void rmdir(String remotePath, ChannelSftp channelSftp) throws SftpException, JSchException {
+
+	private static void rmdir(String remotePath, ChannelSftp channelSftp)
+			throws SftpException, JSchException {
 		channelSftp.rmdir(remotePath);
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public static Vector<ChannelSftp.LsEntry> ls(String path) throws SftpException{
+	public static Vector<ChannelSftp.LsEntry> ls(String path)
+			throws SftpException {
 		ChannelSftp channelSftp = null;
 		try {
 			checkValidityOrCreateSession();
@@ -451,13 +472,13 @@ public class SshEngine {
 			channelSftp.connect();
 			Vector<ChannelSftp.LsEntry> entries = channelSftp.ls(path);
 			// remove hidden directories (TODO create a setting for that)
-			entries.removeIf(entry -> entry.getFilename().equals(".") || entry.getFilename().equals("..") || entry.getFilename().startsWith("."));
+			entries.removeIf(entry -> entry.getFilename().equals(".")
+					|| entry.getFilename().equals("..")
+					|| entry.getFilename().startsWith("."));
 			return entries;
-		}
-		catch(SftpException sftpex) {
+		} catch (SftpException sftpex) {
 			throw sftpex;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		} finally {
@@ -465,16 +486,15 @@ public class SshEngine {
 				channelSftp.disconnect();
 		}
 	}
-	
+
 	/*
 	 * ========== END File System operations ==========
 	 */
-	
-	
+
 	/*
 	 * ========== BEGIN Other ==========
 	 */
-	
+
 	public static String executeCommand(String command) {
 		System.out.println("> " + command);
 		Channel channel = null;
@@ -485,7 +505,8 @@ public class SshEngine {
 			((ChannelExec) channel).setCommand(command);
 			channel.connect();
 			in = channel.getInputStream();
-			String returnText = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+			String returnText = new String(in.readAllBytes(),
+					StandardCharsets.UTF_8);
 			in.close();
 			// Remove possible \r\n at the end of the string
 			returnText = returnText.replaceAll("[\r\n]+$", "").trim();
@@ -502,12 +523,11 @@ public class SshEngine {
 		}
 		return null;
 	}
-	
+
 	/*
 	 * ========== END Other ==========
 	 */
-	
-	
+
 }
 /*
  * When executing a command on a remote server using SSH with Jsch in Java, we

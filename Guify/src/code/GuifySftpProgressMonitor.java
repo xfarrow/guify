@@ -6,16 +6,17 @@ import com.jcraft.jsch.SftpProgressMonitor;
 public class GuifySftpProgressMonitor implements SftpProgressMonitor {
 
 	TransferProgress transferProgress = null;
-	
+
 	@Override
 	public boolean count(long bytes) {
-		
-		if(transferProgress != null) {
-			transferProgress.setTransferredBytes(transferProgress.getTransferredBytes() + bytes);
+
+		if (transferProgress != null) {
+			transferProgress.setTransferredBytes(
+					transferProgress.getTransferredBytes() + bytes);
 			transferProgress.setTransferStatus(TransferProgress.UPDATING);
 			QueueEventManager.getInstance().notify(transferProgress);
 		}
-		
+
 		// true if the transfer should go on
 		// false if the transfer should be cancelled
 		return true;
@@ -23,7 +24,7 @@ public class GuifySftpProgressMonitor implements SftpProgressMonitor {
 
 	@Override
 	public void end() {
-		if(transferProgress != null) {
+		if (transferProgress != null) {
 			transferProgress.setTransferStatus(TransferProgress.END);
 			QueueEventManager.getInstance().notify(transferProgress);
 		}

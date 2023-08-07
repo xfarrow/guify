@@ -4,7 +4,7 @@ import java.awt.EventQueue;
 
 import controllers.LoginController;
 public class Main {
-
+	
 	/**
 	 * Guify's entry point
 	 */
@@ -19,5 +19,7 @@ public class Main {
 			}
 		});
 	}
-
+	
 }
+
+// In loving memory of L.B. and E.B.

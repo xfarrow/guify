@@ -3,17 +3,13 @@ package code.GuiAbstractions.Interfaces;
 /**
  * 
  * 
- * Interface for a generic TextArea.
- * It is used to create an abstraction of a
- * TextArea, without using view-specific objects
- * (such as JTextArea).
+ * Interface for a generic TextArea. It is used to create an abstraction of a
+ * TextArea, without using view-specific objects (such as JTextArea).
  * 
- * This increases modularity, flexibility and
- * creates a separation of concerns.
+ * This increases modularity, flexibility and creates a separation of concerns.
  * 
- * In case of change of the GUI library you
- * do not need to change neither the Controllers nor
- * these interfaces, but only the implementations.
+ * In case of change of the GUI library you do not need to change neither the
+ * Controllers nor these interfaces, but only the implementations.
  *
  */
 public interface IGenericTextArea {

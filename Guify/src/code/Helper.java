@@ -9,21 +9,20 @@ public class Helper {
 	 */
 	public static String combinePath(String s1, String s2) {
 		StringBuilder result = new StringBuilder(s1);
-		if(!s1.endsWith("/")) {
+		if (!s1.endsWith("/")) {
 			result.append('/');
 		}
 		result.append(s2);
 		return result.toString();
 	}
-	
+
 	public static String getParentPath(String path) {
-		if(path.equals("/")) {
+		if (path.equals("/")) {
 			return "/";
-		}
-		else if(path.equals("~")) {
-			return Path.of(SshEngine.executeCommand("pwd")).getParent().toString().replace('\\', '/');
-		}
-		else {
+		} else if (path.equals("~")) {
+			return Path.of(SshEngine.executeCommand("pwd")).getParent()
+					.toString().replace('\\', '/');
+		} else {
 			return Path.of(path).getParent().toString().replace('\\', '/');
 		}
 	}

@@ -2,8 +2,7 @@ package code;
 
 /**
  * 
- * A class representing a
- * "tree -J" result
+ * A class representing a "tree -J" result
  *
  */
 public class TreeNode {

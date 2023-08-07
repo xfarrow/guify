@@ -2,24 +2,24 @@ package code;
 
 /**
  * 
- * An object representing the transfer progress of a
- * file between the server and the host machine.
+ * An object representing the transfer progress of a file between the server and
+ * the host machine.
  *
  */
 public class TransferProgress {
-	
+
 	// Transfer statuses
 	public static final int INIT = 0;
 	public static final int UPDATING = 1;
 	public static final int END = 2;
-	
+
 	private String source;
 	private String destination;
 	private long totalBytes;
 	private long transferredBytes;
 	private int operation;
 	private int transferStatus;
-	
+
 	public String getSource() {
 		return source;
 	}
