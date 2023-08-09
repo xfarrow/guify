@@ -201,25 +201,29 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	 * @param directory
 	 */
 	public void drawComponentsForDirectory(String directory) {
+		controller.clearSelectedNodes();
+		updateToolBarItems();
+		controller.setCurrentWorkingDirectory(directory);
+
+		// Only loadDesktop() can tell whether we have the permission to view
+		// the content of the directory
 		try {
-			controller.clearSelectedNodes();
-			updateToolBarItems();
-			controller.setCurrentWorkingDirectory(directory);
-			pathTextBox.setText(controller.getCurrentWorkingDirectory());
-			loadTree();
 			loadDesktop();
 		} catch (Exception ex) {
 			if (controller.getLastSafeDirectory() == null) {
 				System.exit(ERROR);
 			} else {
-				drawComponentsForDirectory(controller.getLastSafeDirectory());
+				String lastSafeDirectory = controller.getLastSafeDirectory();
 				controller.setLastSafeDirectory(null); // Prevents infinite
 														// re-tries
+				drawComponentsForDirectory(lastSafeDirectory);
 				return;
 			}
 		}
-		controller.setLastSafeDirectory(directory);
 
+		loadTree();
+		pathTextBox.setText(controller.getCurrentWorkingDirectory());
+		controller.setLastSafeDirectory(directory);
 		repaint();
 		revalidate();
 	}
@@ -1158,7 +1162,8 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	private void unselectAllNodes() {
 		for (IDirectoryNodeButton directoryNode : controller
 				.getSelectedNodes()) {
-			((JDirectoryNodeButton)directoryNode).setBackground(new Color(255, 255, 255));
+			((JDirectoryNodeButton) directoryNode)
+					.setBackground(new Color(255, 255, 255));
 		}
 		controller.clearSelectedNodes();
 		updateToolBarItems();
