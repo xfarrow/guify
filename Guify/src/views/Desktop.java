@@ -193,28 +193,40 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	 * @param directory
 	 */
 	public void drawComponentsForDirectory(String directory) {
+
+		// Clear any selection
 		unselectAllNodes();
+
+		// Set the current working directory
 		controller.setCurrentWorkingDirectory(directory);
-		// Only loadDesktop() can tell whether we have the permission to view
-		// the content of the directory
+
 		try {
+			// Load the desktop content
 			loadDesktop();
 		} catch (Exception ex) {
+			// Handle lack of permissions or other errors
 			if (ex.getMessage().contains("Permission denied")) {
-				JOptionPane.showMessageDialog(new JFrame(), "Permission denied",
-						"Permission denied", JOptionPane.ERROR_MESSAGE);
+				showErrorDialog("Permission denied", "Permission denied");
 			} else {
-				JOptionPane.showMessageDialog(new JFrame(),
-						"An unknown error has occurred: " + ex.getMessage(),
-						"Error", JOptionPane.ERROR_MESSAGE);
+				showErrorDialog("Error",
+						"An unknown error has occurred. Details: "
+								+ ex.getMessage());
 			}
 			controller.setCurrentWorkingDirectory(
 					controller.getLastSafeDirectory());
 			return;
 		}
+
+		// Load the tree structure
 		loadTree();
+
+		// Update the path text box
 		pathTextBox.setText(controller.getCurrentWorkingDirectory());
+
+		// Store the current directory as the last safe directory
 		controller.setLastSafeDirectory(directory);
+
+		// Refresh the display
 		repaint();
 		revalidate();
 	}
@@ -319,7 +331,6 @@ public class Desktop extends JFrame implements IDesktopFrame {
 
 					// Download
 					case 0 :
-
 						JFileChooser fileChooser = new JFileChooser();
 						fileChooser.setFileSelectionMode(
 								JFileChooser.DIRECTORIES_ONLY);
@@ -656,13 +667,16 @@ public class Desktop extends JFrame implements IDesktopFrame {
 						controller.getCurrentWorkingDirectory(), newName);
 				try {
 					controller.rename(oldPath, newPath);
-				} catch (SftpException e1) {
+				} catch (Exception e1) {
 					if (e1.getMessage().contains("Permission denied")) {
-						JOptionPane.showMessageDialog(new JFrame(),
-								"Not enough permissions to rename this element",
-								"Permission denied", JOptionPane.ERROR_MESSAGE);
-						return;
+						showErrorDialog("Not enough permissions",
+								"Not enough permissions to rename this element");
+					} else {
+						showErrorDialog("Error",
+								"An unknown error has occurred: "
+										+ e1.getMessage());
 					}
+					return;
 				}
 				drawComponentsForDirectory(
 						controller.getCurrentWorkingDirectory()); // TODO
@@ -726,14 +740,16 @@ public class Desktop extends JFrame implements IDesktopFrame {
 								newFileName);
 						try {
 							controller.touch(newFilePath);
-						} catch (SftpException e1) {
+						} catch (Exception e1) {
 							if (e1.getMessage().contains("Permission denied")) {
-								JOptionPane.showMessageDialog(new JFrame(),
-										"Not enough permissions to create a file here",
-										"Permission denied",
-										JOptionPane.ERROR_MESSAGE);
-								return;
+								showErrorDialog("Permission denied",
+										"Not enough permissions to create a file here");
+							} else {
+								showErrorDialog("Error",
+										"An unknown error has occurred: "
+												+ e1.getMessage());
 							}
+							return;
 						}
 						drawComponentsForDirectory(
 								controller.getCurrentWorkingDirectory());
@@ -768,14 +784,16 @@ public class Desktop extends JFrame implements IDesktopFrame {
 								newFolderName);
 						try {
 							controller.mkdir(newFolderPath);
-						} catch (SftpException e1) {
+						} catch (Exception e1) {
 							if (e1.getMessage().contains("Permission denied")) {
-								JOptionPane.showMessageDialog(new JFrame(),
-										"Not enough permissions to create a folder here",
-										"Permission denied",
-										JOptionPane.ERROR_MESSAGE);
-								return;
+								showErrorDialog("Permission denied",
+										"Not enough permissions to create a folder here");
+							} else {
+								showErrorDialog("Error",
+										"An unknown error has occurred: "
+												+ e1.getMessage());
 							}
+							return;
 						}
 						drawComponentsForDirectory(
 								controller.getCurrentWorkingDirectory()); // TODO:
@@ -841,12 +859,15 @@ public class Desktop extends JFrame implements IDesktopFrame {
 				if (choice == 0) { // yes
 					try {
 						controller.deleteSelectedNodes();
-					} catch (SftpException e1) {
+					} catch (Exception e1) {
 						if (e1.getMessage().contains("Permission denied")) {
-							JOptionPane.showMessageDialog(new JFrame(),
-									"Deletion process has encountered an item which cannot be deleted",
-									"Permission denied",
-									JOptionPane.ERROR_MESSAGE);
+							showErrorDialog("Permission denied",
+									"The deletion process has encountered an item which cannot be deleted. Details: "
+											+ e1.getMessage());
+						} else {
+							showErrorDialog("Error",
+									"An unknown error has occurred. Details: "
+											+ e1.getMessage());
 						}
 					}
 					drawComponentsForDirectory(
@@ -1084,8 +1105,11 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	 * Enables or disables tool bar buttons according to these propositions:
 	 * 
 	 * 1. At least a selected node is selected <--> cut, copy, delete, download
-	 * ENABLED 2. Only one selected node is selected <--> rename ENABLED 3.
-	 * selectedToolBarOperation is not none <--> paste ENABLED
+	 * ENABLED
+	 * 
+	 * 2. Only one selected node is selected <--> rename ENABLED
+	 * 
+	 * 3. selectedToolBarOperation is not none <--> paste ENABLED
 	 */
 	private void updateToolBarItems() {
 
@@ -1150,6 +1174,29 @@ public class Desktop extends JFrame implements IDesktopFrame {
 
 	/*
 	 * ========== END Node selection/deselection ==========
+	 */
+
+	/*
+	 * ========== BEGIN Other ==========
+	 * 
+	 */
+
+	/**
+	 * Displays an error message dialog with the given title and message.
+	 *
+	 * @param title
+	 *            The title of the dialog.
+	 * @param message
+	 *            The message to display.
+	 */
+	private void showErrorDialog(String title, String message) {
+		JOptionPane.showMessageDialog(new JFrame(), message, title,
+				JOptionPane.ERROR_MESSAGE);
+	}
+
+	/*
+	 * ========== END Other ==========
+	 * 
 	 */
 
 }
