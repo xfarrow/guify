@@ -3,7 +3,6 @@ package controllers;
 import com.google.gson.Gson;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
-
 import code.Constants;
 import code.Constants.Constants_FSOperations;
 import code.GuiAbstractions.Implementations.JFrameFactory;
@@ -71,7 +70,6 @@ public class DesktopController {
 	}
 
 	public void setLastSafeDirectory(String directory) {
-
 		if (directory == null) {
 			lastSafeDirectory = null;
 			return;
@@ -150,27 +148,26 @@ public class DesktopController {
 	 */
 	public void uploadToRemoteServer(File[] selectedNodes)
 			throws SftpException {
-		if (selectedNodes.length > 0) {
-			List<File> selectedFiles = new ArrayList<File>();
-			List<File> selectedDirectories = new ArrayList<File>();
-			for (java.io.File file : selectedNodes) {
-				if (file.isFile()) {
-					selectedFiles.add(file);
-				} else if (file.isDirectory()) {
-					selectedDirectories.add(file);
-				}
+		if (selectedNodes.length == 0) {
+			return;
+		}
+		List<File> selectedFiles = new ArrayList<File>();
+		List<File> selectedDirectories = new ArrayList<File>();
+		for (java.io.File file : selectedNodes) {
+			if (file.isFile()) {
+				selectedFiles.add(file);
+			} else if (file.isDirectory()) {
+				selectedDirectories.add(file);
 			}
+		}
 
-			for (File file : selectedFiles) {
-				SshEngine.uploadFile(file, this.getCurrentWorkingDirectory());
-			}
+		for (File file : selectedFiles) {
+			SshEngine.uploadFile(file, this.getCurrentWorkingDirectory());
+		}
 
-			if (selectedDirectories.size() > 0) {
-				for (File directory : selectedDirectories) {
-					SshEngine.uploadDirectoriesRecursively(directory,
-							this.getCurrentWorkingDirectory());
-				}
-			}
+		for (File directory : selectedDirectories) {
+			SshEngine.uploadDirectoriesRecursively(directory,
+					this.getCurrentWorkingDirectory());
 		}
 	}
 
@@ -304,7 +301,7 @@ public class DesktopController {
 			// cannot write on destination
 			// we keep using isWriteable as
 			// the executeCommand() does not fire
-			// an exception in case of fail
+			// an exception in case of failure
 			if (!isWriteable(destination)) {
 				return;
 			}

@@ -232,6 +232,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	 * Loads the desktop view
 	 * 
 	 * @throws SftpException
+	 *             if the content of the directory cannot be displayed
 	 */
 	private void loadDesktop() throws SftpException {
 		desktopPanel.removeAll();

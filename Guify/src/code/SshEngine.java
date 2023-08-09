@@ -173,8 +173,7 @@ public class SshEngine {
 	 * Uploads a file from the local machine to the remote host. Executed
 	 * asynchronously.
 	 */
-	public static void uploadFile(File fileToUpload, String remoteDirectory)
-			throws SftpException {
+	public static void uploadFile(File fileToUpload, String remoteDirectory) {
 		// We execute the lengthy and time-consuming operation on a different
 		// thread instead of the Event Dispatch Thread.
 		// We use SwingWorker so any GUI changes requested by this thread will
