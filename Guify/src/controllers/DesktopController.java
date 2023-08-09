@@ -144,10 +144,8 @@ public class DesktopController {
 	 * Uploads files and folders to the remote server
 	 * 
 	 * @param selectedNodes
-	 * @throws SftpException
 	 */
-	public void uploadToRemoteServer(File[] selectedNodes)
-			throws SftpException {
+	public void uploadToRemoteServer(File[] selectedNodes) {
 		if (selectedNodes.length == 0) {
 			return;
 		}

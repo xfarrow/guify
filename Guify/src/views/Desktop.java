@@ -162,21 +162,13 @@ public class Desktop extends JFrame implements IDesktopFrame {
 										.getTransferData(
 												DataFlavor.javaFileListFlavor)))
 										.size()]);
-						try {
-							((DesktopController) controller)
-									.uploadToRemoteServer(droppedFileArray);
-							drawComponentsForDirectory(
-									((DesktopController) controller)
-											.getCurrentWorkingDirectory());
-						} catch (SftpException e) {
-							if (e.getMessage().contains("Permission denied")) {
-								JOptionPane.showMessageDialog(new JFrame(),
-										"Permission denied",
-										"Permission denied",
-										JOptionPane.ERROR_MESSAGE);
-								return;
-							}
-						}
+
+						((DesktopController) controller)
+								.uploadToRemoteServer(droppedFileArray);
+						drawComponentsForDirectory(
+								((DesktopController) controller)
+										.getCurrentWorkingDirectory());
+
 					} catch (UnsupportedFlavorException | IOException e) {
 						e.printStackTrace();
 					}
@@ -201,26 +193,25 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	 * @param directory
 	 */
 	public void drawComponentsForDirectory(String directory) {
-		controller.clearSelectedNodes();
-		updateToolBarItems();
+		unselectAllNodes();
 		controller.setCurrentWorkingDirectory(directory);
-
 		// Only loadDesktop() can tell whether we have the permission to view
 		// the content of the directory
 		try {
 			loadDesktop();
 		} catch (Exception ex) {
-			if (controller.getLastSafeDirectory() == null) {
-				System.exit(ERROR);
+			if (ex.getMessage().contains("Permission denied")) {
+				JOptionPane.showMessageDialog(new JFrame(), "Permission denied",
+						"Permission denied", JOptionPane.ERROR_MESSAGE);
 			} else {
-				String lastSafeDirectory = controller.getLastSafeDirectory();
-				controller.setLastSafeDirectory(null); // Prevents infinite
-														// re-tries
-				drawComponentsForDirectory(lastSafeDirectory);
-				return;
+				JOptionPane.showMessageDialog(new JFrame(),
+						"An unknown error has occurred: " + ex.getMessage(),
+						"Error", JOptionPane.ERROR_MESSAGE);
 			}
+			controller.setCurrentWorkingDirectory(
+					controller.getLastSafeDirectory());
+			return;
 		}
-
 		loadTree();
 		pathTextBox.setText(controller.getCurrentWorkingDirectory());
 		controller.setLastSafeDirectory(directory);
@@ -235,8 +226,6 @@ public class Desktop extends JFrame implements IDesktopFrame {
 	 *             if the content of the directory cannot be displayed
 	 */
 	private void loadDesktop() throws SftpException {
-		desktopPanel.removeAll();
-
 		Image folderIcon = null;
 		Image fileIcon = null;
 		try {
@@ -252,19 +241,12 @@ public class Desktop extends JFrame implements IDesktopFrame {
 		}
 
 		Vector<LsEntry> elementsToDisplay = null;
-		try {
-			elementsToDisplay = controller.getDirectoryElements();
-			if (elementsToDisplay == null) {
-				return;
-			}
-		} catch (SftpException e) {
-			if (e.getMessage().contains("Permission denied")) {
-				JOptionPane.showMessageDialog(new JFrame(), "Permission denied",
-						"Permission denied", JOptionPane.ERROR_MESSAGE);
-				throw e;
-			}
+		elementsToDisplay = controller.getDirectoryElements();
+		desktopPanel.removeAll();
+		// No content
+		if (elementsToDisplay == null) {
+			return;
 		}
-
 		for (LsEntry node : elementsToDisplay) {
 			ImageIcon icon = new ImageIcon(
 					node.getAttrs().isDir() ? folderIcon : fileIcon);
@@ -954,18 +936,8 @@ public class Desktop extends JFrame implements IDesktopFrame {
 						"Upload");
 				if (choiceFileChooser == JFileChooser.APPROVE_OPTION
 						&& fileChooser.getSelectedFiles().length > 0) {
-					try {
-						controller.uploadToRemoteServer(
-								fileChooser.getSelectedFiles());
-					} catch (SftpException e1) {
-						if (e1.getMessage().contains("Permission denied")) {
-							JOptionPane.showMessageDialog(new JFrame(),
-									"Not enough permissions to upload in this location",
-									"Permission denied",
-									JOptionPane.ERROR_MESSAGE);
-							return;
-						}
-					}
+					controller.uploadToRemoteServer(
+							fileChooser.getSelectedFiles());
 					drawComponentsForDirectory(
 							controller.getCurrentWorkingDirectory());
 				}

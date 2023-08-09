@@ -214,7 +214,7 @@ public class SshEngine {
 	 *            will be uploaded in
 	 */
 	public static void uploadDirectoriesRecursively(File directory,
-			String remoteDirectory) throws SftpException {
+			String remoteDirectory) {
 		// We execute the lengthy and time-consuming operation on a different
 		// thread instead of the Event Dispatch Thread.
 		// We use SwingWorker so any GUI changes requested by this thread will
