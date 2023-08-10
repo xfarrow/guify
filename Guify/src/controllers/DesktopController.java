@@ -420,11 +420,14 @@ public class DesktopController {
 	}
 
 	/**
+	 * Checks if the specified path is readable by the current user
+	 * @return true if readable, false otherwise
 	 * @deprecated This method is deprecated. Catch SftpException and look for
 	 *             "Permission denied" instead. This prevents unnecessary
 	 *             overhead
 	 */
 	public boolean isReadable(String path) {
+		// Create the construct [ -r "/path" ] && echo 1 || echo 0
 		StringBuilder command = new StringBuilder();
 		command.append("[ -r \"");
 		command.append(path.equals("~")
@@ -435,10 +438,13 @@ public class DesktopController {
 	}
 
 	/**
+	 * Checks if the specified path is writable by the current user
+	 * @return true if writable, false otherwise
 	 * @deprecated This method is deprecated. Catch SftpException and look for
 	 *             "Permission denied" instead
 	 */
 	public boolean isWriteable(String path) {
+		// Create the construct [ -w "/path" ] && echo 1 || echo 0
 		StringBuilder command = new StringBuilder();
 		command.append("[ -w \"");
 		command.append(path.equals("~")

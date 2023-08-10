@@ -674,9 +674,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 					return;
 				}
 				drawComponentsForDirectory(
-						controller.getCurrentWorkingDirectory()); // TODO
-																	// optimize
-																	// this
+						controller.getCurrentWorkingDirectory());
 			}
 
 			// Hover on
@@ -791,12 +789,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 							return;
 						}
 						drawComponentsForDirectory(
-								controller.getCurrentWorkingDirectory()); // TODO:
-																			// avoid
-																			// a
-																			// complete
-																			// desktop
-																			// reload
+								controller.getCurrentWorkingDirectory());
 					}
 				});
 
@@ -822,7 +815,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 
 		deleteBtn = new JButton();
 		deleteBtn.setBorderPainted(false);
-		deleteBtn.setBorder(new EmptyBorder(0, 0, 0, 0)); // Set empty border);
+		deleteBtn.setBorder(new EmptyBorder(0, 0, 0, 0)); // Set empty border;
 		deleteBtn.setToolTipText("Delete");
 		try {
 			deleteBtn.setIcon(new ImageIcon(ImageIO
@@ -973,7 +966,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 
 		JButton queueBtn = new JButton();
 		queueBtn.setBorderPainted(false);
-		queueBtn.setBorder(new EmptyBorder(0, 0, 0, 0)); // Set empty border);
+		queueBtn.setBorder(new EmptyBorder(0, 0, 0, 0)); // Set empty border;
 		queueBtn.setToolTipText("Queue");
 		try {
 			queueBtn.setIcon(new ImageIcon(ImageIO
@@ -1032,7 +1025,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 
 		JButton goToBtn = new JButton();
 		goToBtn.setBorderPainted(false);
-		goToBtn.setBorder(new EmptyBorder(0, 0, 0, 0)); // Set empty border);
+		goToBtn.setBorder(new EmptyBorder(0, 0, 0, 0)); // Set empty border
 		goToBtn.setToolTipText("Go");
 		try {
 			goToBtn.setIcon(new ImageIcon(ImageIO
