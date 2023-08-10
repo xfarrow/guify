@@ -165,16 +165,13 @@ public class Desktop extends JFrame implements IDesktopFrame {
 
 						((DesktopController) controller)
 								.uploadToRemoteServer(droppedFileArray);
-						drawComponentsForDirectory(
-								((DesktopController) controller)
-										.getCurrentWorkingDirectory());
 
 					} catch (UnsupportedFlavorException | IOException e) {
 						e.printStackTrace();
 					}
 				}
 				dtde.dropComplete(true);
-				desktopPanel.setBorder(null);
+				desktopPanel.setBorder(null); // remove the blue line
 			}
 		});
 	}
@@ -959,8 +956,6 @@ public class Desktop extends JFrame implements IDesktopFrame {
 						&& fileChooser.getSelectedFiles().length > 0) {
 					controller.uploadToRemoteServer(
 							fileChooser.getSelectedFiles());
-					drawComponentsForDirectory(
-							controller.getCurrentWorkingDirectory());
 				}
 			}
 

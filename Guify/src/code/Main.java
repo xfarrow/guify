@@ -1,3 +1,5 @@
+// In loving memory of L.B. and E.B.
+
 package code;
 
 import java.awt.EventQueue;
@@ -19,7 +21,4 @@ public class Main {
 			}
 		});
 	}
-	
 }
-
-// In loving memory of L.B. and E.B.

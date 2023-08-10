@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.function.Consumer;
+
 import org.apache.commons.io.IOUtils;
 import com.jcraft.jsch.*;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
@@ -173,7 +175,7 @@ public class SshEngine {
 	 * Uploads a file from the local machine to the remote host. Executed
 	 * asynchronously.
 	 */
-	public static void uploadFile(File fileToUpload, String remoteDirectory) {
+	public static void uploadFile(File fileToUpload, String remoteDirectory, Consumer<String> uploadCompletedEvent) {
 		// We execute the lengthy and time-consuming operation on a different
 		// thread instead of the Event Dispatch Thread.
 		// We use SwingWorker so any GUI changes requested by this thread will
@@ -190,6 +192,9 @@ public class SshEngine {
 							fileToUpload.getName());
 					channelSftp.put(fileToUpload.getAbsolutePath(), remotePath,
 							new GuifySftpProgressMonitor());
+					
+					// Fire the upload completed event
+					uploadCompletedEvent.accept(remoteDirectory);
 					System.out.println("File: " + fileToUpload.getAbsolutePath()
 							+ " uploaded to remote path: " + remotePath);
 				} catch (SftpException sftpex) {
@@ -214,7 +219,7 @@ public class SshEngine {
 	 *            will be uploaded in
 	 */
 	public static void uploadDirectoriesRecursively(File directory,
-			String remoteDirectory) {
+			String remoteDirectory, Consumer<String> uploadCompletedEvent) {
 		// We execute the lengthy and time-consuming operation on a different
 		// thread instead of the Event Dispatch Thread.
 		// We use SwingWorker so any GUI changes requested by this thread will
@@ -228,6 +233,9 @@ public class SshEngine {
 					channelSftp.connect();
 					uploadDirectoriesRecursively_aux(channelSftp, directory,
 							remoteDirectory);
+					
+					// Fire the upload completed event
+					uploadCompletedEvent.accept(remoteDirectory);
 				} catch (SftpException sftpex) {
 					// TODO maybe no permissions
 				} catch (Exception e) {

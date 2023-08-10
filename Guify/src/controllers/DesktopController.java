@@ -15,6 +15,9 @@ import code.SshEngine;
 import java.io.File;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
+
+import javax.swing.SwingUtilities;
 public class DesktopController {
 
 	/*
@@ -159,13 +162,20 @@ public class DesktopController {
 			}
 		}
 
+		// Once the upload has completed, fire this event (draw the desktop).
+		// The parameter is the remote path in which the file(s) are uploaded
+		// into
+		Consumer<String> uploadCompletedEvent = s -> this
+				.uploadCompletedEvent(s);
+
 		for (File file : selectedFiles) {
-			SshEngine.uploadFile(file, this.getCurrentWorkingDirectory());
+			SshEngine.uploadFile(file, this.getCurrentWorkingDirectory(),
+					uploadCompletedEvent);
 		}
 
 		for (File directory : selectedDirectories) {
 			SshEngine.uploadDirectoriesRecursively(directory,
-					this.getCurrentWorkingDirectory());
+					this.getCurrentWorkingDirectory(), uploadCompletedEvent);
 		}
 	}
 
@@ -447,6 +457,34 @@ public class DesktopController {
 		title.append(" - ");
 		title.append(LoginCredentials.host);
 		return title.toString();
+	}
+
+	/**
+	 * Event that gets fired once
+	 */
+	public void uploadCompletedEvent(String path) {
+
+		if (!path.equals(getCurrentWorkingDirectory())) {
+			// Redraw the desktop only if necessary
+			return;
+		}
+
+		// This method gets called from outside the Event
+		// Dispatch Thread and we know it, but we write this condition
+		// because you never know when this method may be helpful in
+		// the future, forgetting to check this condition.
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					uploadCompletedEvent(path);
+				}
+			});
+			return;
+		}
+
+		// Draw the UI again
+		frame.drawComponentsForDirectory(path);
 	}
 
 	/*

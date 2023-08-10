@@ -5,8 +5,8 @@ import com.jcraft.jsch.SftpProgressMonitor;
 // Documentation: https://epaul.github.io/jsch-documentation/javadoc/com/jcraft/jsch/SftpProgressMonitor.html
 public class GuifySftpProgressMonitor implements SftpProgressMonitor {
 
-	TransferProgress transferProgress = null;
-
+	private TransferProgress transferProgress = null;
+	
 	@Override
 	public boolean count(long bytes) {
 
