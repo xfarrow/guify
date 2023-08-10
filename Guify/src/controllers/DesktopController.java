@@ -166,7 +166,7 @@ public class DesktopController {
 		// The parameter is the remote path in which the file(s) are uploaded
 		// into
 		Consumer<String> uploadCompletedEvent = s -> this
-				.uploadCompletedEvent(s);
+				.operationCompletedEvent(s);
 
 		for (File file : selectedFiles) {
 			SshEngine.uploadFile(file, this.getCurrentWorkingDirectory(),
@@ -460,9 +460,10 @@ public class DesktopController {
 	}
 
 	/**
-	 * Event that gets fired once
+	 * Event that gets fired once an operation on the file
+	 * system has been completed (such as an upload)
 	 */
-	public void uploadCompletedEvent(String path) {
+	public void operationCompletedEvent(String path) {
 
 		if (!path.equals(getCurrentWorkingDirectory())) {
 			// Redraw the desktop only if necessary
@@ -477,7 +478,7 @@ public class DesktopController {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					uploadCompletedEvent(path);
+					operationCompletedEvent(path);
 				}
 			});
 			return;

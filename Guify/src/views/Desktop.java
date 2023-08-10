@@ -198,7 +198,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 		controller.setCurrentWorkingDirectory(directory);
 
 		try {
-			// Load the desktop content
+			// Load the desktop's content
 			loadDesktop();
 		} catch (Exception ex) {
 			// Handle lack of permissions or other errors
@@ -267,9 +267,7 @@ public class Desktop extends JFrame implements IDesktopFrame {
 			element.add(iconLabel);
 			element.setBackground(new Color(255, 255, 255));
 			element.setToolTipText(node.getFilename());
-			int buttonWidth = 75;
-			int buttonHeight = element.getPreferredSize().height;
-			Dimension buttonSize = new Dimension(buttonWidth, buttonHeight);
+			Dimension buttonSize = new Dimension(75, element.getPreferredSize().height);
 			element.setPreferredSize(buttonSize);
 			element.setMaximumSize(buttonSize);
 			element.setMinimumSize(buttonSize);
