@@ -1,5 +1,5 @@
 # Guify
-Guify creates a Graphical User Interface for SSH. 
+A Graphical User Interface for SSH. 
 
 Works on any machine able to execute Java code, but is able to target only Linux (or more in general POSIX-compliant) systems.
 
@@ -23,12 +23,9 @@ If you want to achieve similar results you can:
 <img src="/Images/Image.jpg" alt="Homescreen">
 
 ## Security notice
-* Due to a lack of extensive tests and documentation, this software may engage in unwanted behavior, including corrupting data;
-* This software does not currently allow to verify SSH fingerprints. This implies that the server you intend to connect to could be different
+* This program does not currently allow to verify SSH fingerprints. This implies that the server you intend to connect to could be different
 from the server you are actually connecting to;
-* This software does not currently allow authentication through SSH keys.
-
-Hence, **use is not recommended in environments where data security and integrity is important.**
+* This program does not currently allow authentication through SSH keys.
 
 ## Support this project
 If you would like to support this project you can give it a star. Furthermore, if you want, you can donate by clicking on this button:
